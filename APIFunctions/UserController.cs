@@ -1,75 +1,108 @@
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace PostgresApi.Controllers
+namespace PostgresApi.Functions;
+
+public class UserFunctions
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class UserController : ControllerBase
+    private readonly AppDbContext _context;
+
+    public UserFunctions(AppDbContext context)
     {
-        private readonly AppDbContext _context;
+        _context = context;
+    }
 
-        public UserController(AppDbContext context)
+    [Function("GetUsers")]
+    public async Task<HttpResponseData> GetUsers(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user")] HttpRequestData req,
+        FunctionContext executionContext)
+    {
+        var logger = executionContext.GetLogger("GetUsers");
+        var users = await _context.Users.ToListAsync();
+
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(users);
+        return response;
+    }
+
+    [Function("GetUserById")]
+    public async Task<HttpResponseData> GetUserById(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "user/{id:int}")] HttpRequestData req,
+        int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        var response = req.CreateResponse();
+
+        if (user == null)
         {
-            _context = context;
+            response.StatusCode = HttpStatusCode.NotFound;
+            return response;
         }
 
-        // GET /user
-        [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        await response.WriteAsJsonAsync(user);
+        return response;
+    }
+
+    [Function("CreateUser")]
+    public async Task<HttpResponseData> CreateUser(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "user")] HttpRequestData req)
+    {
+        var user = await req.ReadFromJsonAsync<User>();
+        if (user == null)
         {
-            var users = await _context.Users.ToListAsync();
-            return Ok(users);
+            var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+            await badResponse.WriteStringAsync("Invalid user data.");
+            return badResponse;
         }
 
-        // GET /user/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
+        user.Id = 0;
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
-            return Ok(user);
+        var response = req.CreateResponse(HttpStatusCode.Created);
+        await response.WriteAsJsonAsync(user);
+        return response;
+    }
+
+    [Function("UpdateUser")]
+    public async Task<HttpResponseData> UpdateUser(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "user/{id:int}")] HttpRequestData req,
+        int id)
+    {
+        var updatedUser = await req.ReadFromJsonAsync<User>();
+        var existingUser = await _context.Users.FindAsync(id);
+
+        if (existingUser == null)
+        {
+            var notFound = req.CreateResponse(HttpStatusCode.NotFound);
+            return notFound;
         }
 
-        // POST /user
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
-        {
-            user.Id = 0; // ignore userId if passed in
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+        existingUser.Name = updatedUser.Name;
+        existingUser.Email = updatedUser.Email;
 
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+        await _context.SaveChangesAsync();
+        return req.CreateResponse(HttpStatusCode.NoContent);
+    }
+
+    [Function("DeleteUser")]
+    public async Task<HttpResponseData> DeleteUser(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "user/{id:int}")] HttpRequestData req,
+        int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return req.CreateResponse(HttpStatusCode.NotFound);
         }
 
-        // PUT /user/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedUser)
-        {
-            var existingUser = await _context.Users.FindAsync(id);
-            if (existingUser == null)
-                return NotFound();
-
-            existingUser.Name = updatedUser.Name;
-            existingUser.Email = updatedUser.Email;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // DELETE /user/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        return req.CreateResponse(HttpStatusCode.NoContent);
     }
 }
