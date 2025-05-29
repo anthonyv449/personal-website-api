@@ -1,8 +1,0 @@
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "DefaultConnection": "Host=mydb.postgres.database.azure.com;Port=5432;Database=papichulodb;Username=papichuloadmin;Password=papichuloadmin8!;SslMode=Require;Trust Server Certificate=true"
-  }
-}
