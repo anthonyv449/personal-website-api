@@ -24,40 +24,34 @@ jobs:
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-        uses: actions/setup-dotnet@v1
+      # Setup .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-          
-      - name: Restore dependencies
-        run: dotnet restore ./  
-
-      - name: Publish Azure Function
-        run: |
-          dotnet publish ./ \
-            --configuration Release \
-            --framework net8.0 \
-            --output ./publish
+          dotnet-version: ${{ env.DOTNET_VERSION }} 
       
+      # Run dotnet build and publish
+      - name: dotnet build and publish
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish -c Release --property:PublishDir='${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+          
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0F2E41E98F2B4678A1EBD7F5F96A1DD1 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_49E1152359D1492AB25FC0FDCCC94CFE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4F347A3313AB49B4850388EFF0CBD379 }}
+          
+      # Deploy to Azure Web apps
+      - name: 'Run Azure webapp deploy action using publish profile credentials'
+        uses: azure/webapps-deploy@v3
+        with: 
+          app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE  }} # Define secret variable in repository settings as per action documentation
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+          
+      - name: Restore dependencies
+        run: dotnet restore ./  
 
-      - name: Package artifacts
-        run: |
-          cd publish
-          zip -r ../publish.zip .
-          cd ..
-
-      - name: Zip deploy to Function App
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az functionapp deployment source config-zip \
-              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-              --name ${{ secrets.AZURE_FUNCTIONAPP_NAME }} \
-              --src publish.zip
