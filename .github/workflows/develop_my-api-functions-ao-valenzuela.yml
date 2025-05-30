@@ -28,13 +28,16 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+          
+      - name: Restore dependencies
+        run: dotnet restore ./  
 
-      - name: 'Resolve Project Dependencies Using Dotnet'
-        shell: bash
+      - name: Publish Azure Function
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
-          popd
+          dotnet publish ./ \
+            --configuration Release \
+            --framework net8.0 \
+            --output ./publish
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -49,5 +52,5 @@ jobs:
         with:
           app-name: 'my-api-functions-ao-valenzuela'
           slot-name: 'Production'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          package: './publish'
           
