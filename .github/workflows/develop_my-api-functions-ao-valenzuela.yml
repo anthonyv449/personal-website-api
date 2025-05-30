@@ -46,20 +46,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_49E1152359D1492AB25FC0FDCCC94CFE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4F347A3313AB49B4850388EFF0CBD379 }}
 
-            # … after your Publish step that outputs to ./publish …
-
       - name: Package artifacts
         run: |
           cd publish
           zip -r ../publish.zip .
           cd ..
-
-      - name: Azure CLI login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Zip deploy to Function App
         uses: azure/CLI@v1
