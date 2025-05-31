@@ -29,15 +29,22 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
           
-      - name: Restore dependencies
-        run: dotnet restore ./  
-
-      - name: Publish Azure Function
+      - name: Build and publish
         run: |
-          dotnet publish ./ \
-            --configuration Release \
-            --framework net8.0 \
-            --output ./publish
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish --configuration Release --output ./publish
+
+      - name: Zip publish folder
+        run: zip -r publish.zip ./publish
+      
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: publish.zip
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -46,11 +53,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_49E1152359D1492AB25FC0FDCCC94CFE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4F347A3313AB49B4850388EFF0CBD379 }}
 
-      - name: Package artifacts
-        run: |
-          cd publish
-          zip -r ../publish.zip .
-          cd ..
 
       - name: Zip deploy to Function App
         uses: azure/CLI@v1
