@@ -14,9 +14,6 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Checkout code
@@ -35,13 +32,6 @@ jobs:
 
       - name: Zip published output
         run: zip -r publish.zip ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0F2E41E98F2B4678A1EBD7F5F96A1DD1 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_49E1152359D1492AB25FC0FDCCC94CFE }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4F347A3313AB49B4850388EFF0CBD379 }}
 
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
