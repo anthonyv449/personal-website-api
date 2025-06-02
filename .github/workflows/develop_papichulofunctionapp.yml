@@ -33,6 +33,11 @@ jobs:
       - name: Zip published output
         run: zip -r publish.zip ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
+      - name: Validate secret presence (safe check)
+        run: echo "Length of publish profile:${#AZURE_WEBAPP_PUBLISH_PROFILE}"
+        env:
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
