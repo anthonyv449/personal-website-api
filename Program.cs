@@ -31,7 +31,7 @@ var host = Host.CreateDefaultBuilder(args)
             Console.WriteLine("🧪 Starting ConfigureServices...");
 
             //var conn = context.Configuration["PostgresConnection"];
-            Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrEmpty(conn) ? "[EMPTY]" : "[OK]")}");
+            //Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrEmpty(conn) ? "[EMPTY]" : "[OK]")}");
 
             // if (string.IsNullOrWhiteSpace(conn))
             //     throw new InvalidOperationException("❌ Postgres connection string is not configured!");
