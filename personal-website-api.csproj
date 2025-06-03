@@ -27,4 +27,12 @@
                     Version="9.0.4" />
 </ItemGroup>
 
+<ItemGroup>
+  <None Update="local.settings.json">
+    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+  </None>
+</ItemGroup>
+
+
 </Project>
