@@ -24,7 +24,7 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         // **Note**: no trailing space in the key name!
-        var conn = context.Configuration["PostgresConnection"];
+        var conn = context.Configuration.GetConnectionString("PostgresConnection");
         if (string.IsNullOrWhiteSpace(conn))
             throw new InvalidOperationException("PostgresConnection is not configured!");
 
