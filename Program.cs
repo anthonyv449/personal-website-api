@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using MyIsolatedFuncApp;      // your root namespace
 using MyIsolatedFuncApp.Data; // where MyDbContext lives
 
+Console.WriteLine("🚀 Function App Host starting...");
+
 var host = Host.CreateDefaultBuilder(args)
     // 1) load local.settings.json (for local) and env vars (for Azure)
     .ConfigureAppConfiguration((ctx, config) =>
@@ -23,23 +25,35 @@ var host = Host.CreateDefaultBuilder(args)
     // 3) register your DbContext factory
     .ConfigureServices((context, services) =>
     {
+        .ConfigureServices((context, services) =>
+{
         try
         {
-            var conn = context.Configuration.GetConnectionString("PostgresConnection");
-            Console.WriteLine($"[DEBUG] Connection string length: {conn?.Length ?? 0}");
+            Console.WriteLine("🧪 Starting ConfigureServices...");
+
+            var conn = context.Configuration.GetConnectionString("Default");
+            Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrEmpty(conn) ? "[EMPTY]" : "[OK]")}");
 
             if (string.IsNullOrWhiteSpace(conn))
-                throw new InvalidOperationException("PostgresConnection is not configured!");
+                throw new InvalidOperationException("❌ Postgres connection string is not configured!");
 
             services.AddDbContextFactory<MyDbContext>(opts =>
-                opts.UseNpgsql(conn)
-            );
+            {
+                Console.WriteLine("🧱 Configuring DbContextFactory...");
+                opts.UseNpgsql(conn);
+            });
+
+            services.AddTransient<UserFunctions>();
+
+            Console.WriteLine("✅ ConfigureServices finished successfully");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[FATAL] Startup exception: {ex.Message}");
+            Console.WriteLine($"💥 Fatal startup exception: {ex}");
             throw;
         }
+})
+
     })
     .Build();
 
