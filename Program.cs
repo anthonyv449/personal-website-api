@@ -30,19 +30,19 @@ var host = Host.CreateDefaultBuilder(args)
         {
             Console.WriteLine("🧪 Starting ConfigureServices...");
 
-            //var conn = context.Configuration["PostgresConnection"];
-            //Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrEmpty(conn) ? "[EMPTY]" : "[OK]")}");
+            var conn = context.Configuration["PostgresConnection"];
+            Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrWhiteSpace(conn) ? "[EMPTY]" : "[OK]")}");
 
-            // if (string.IsNullOrWhiteSpace(conn))
-            //     throw new InvalidOperationException("❌ Postgres connection string is not configured!");
+            if (string.IsNullOrWhiteSpace(conn))
+                throw new InvalidOperationException("❌ Postgres connection string is not configured!");
 
-            // services.AddDbContextFactory<MyDbContext>(opts =>
-            // {
-            //     Console.WriteLine("🧱 Configuring DbContextFactory...");
-            //     opts.UseNpgsql(conn);
-            // });
+            services.AddDbContextFactory<MyDbContext>(opts =>
+            {
+                Console.WriteLine("🧱 Configuring DbContextFactory...");
+                opts.UseNpgsql(conn);
+            });
 
-            services.AddTransient<HttpExample>();
+            services.AddTransient<HttpExample>(); // or your function class using DbContext
 
             Console.WriteLine("✅ ConfigureServices finished successfully");
         }
@@ -52,14 +52,24 @@ var host = Host.CreateDefaultBuilder(args)
             throw;
         }
     })
+
     .Build();
 
 // ── auto-migrate pending EF Core migrations on cold start ──
-// using (var scope = host.Services.CreateScope())
-// {
-//     var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MyDbContext>>();
-//     await using var db = factory.CreateDbContext();
-//     db.Database.Migrate();
-// }
+try
+{
+    using var scope = host.Services.CreateScope();
+    var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MyDbContext>>();
+    await using var db = factory.CreateDbContext();
+    Console.WriteLine("🔁 Applying EF Core migrations...");
+    db.Database.Migrate();
+    Console.WriteLine("✅ Migrations applied.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"💥 Migration failure: {ex.Message}");
+    // optionally rethrow if you want to fail the app
+}
+
 
 host.Run();
