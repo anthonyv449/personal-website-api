@@ -23,14 +23,23 @@ var host = Host.CreateDefaultBuilder(args)
     // 3) register your DbContext factory
     .ConfigureServices((context, services) =>
     {
-        // **Note**: no trailing space in the key name!
-        var conn = context.Configuration.GetConnectionString("PostgresConnection");
-        if (string.IsNullOrWhiteSpace(conn))
-            throw new InvalidOperationException("PostgresConnection is not configured!");
+        try
+        {
+            var conn = context.Configuration.GetConnectionString("PostgresConnection");
+            Console.WriteLine($"[DEBUG] Connection string length: {conn?.Length ?? 0}");
 
-        services.AddDbContextFactory<MyDbContext>(opts =>
-            opts.UseNpgsql(conn)
-        );
+            if (string.IsNullOrWhiteSpace(conn))
+                throw new InvalidOperationException("PostgresConnection is not configured!");
+
+            services.AddDbContextFactory<MyDbContext>(opts =>
+                opts.UseNpgsql(conn)
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[FATAL] Startup exception: {ex.Message}");
+            throw;
+        }
     })
     .Build();
 
