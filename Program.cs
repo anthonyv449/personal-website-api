@@ -25,8 +25,6 @@ var host = Host.CreateDefaultBuilder(args)
     // 3) register your DbContext factory
     .ConfigureServices((context, services) =>
     {
-        .ConfigureServices((context, services) =>
-{
         try
         {
             Console.WriteLine("🧪 Starting ConfigureServices...");
@@ -52,8 +50,6 @@ var host = Host.CreateDefaultBuilder(args)
             Console.WriteLine($"💥 Fatal startup exception: {ex}");
             throw;
         }
-})
-
     })
     .Build();
 
