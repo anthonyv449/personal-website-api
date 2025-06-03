@@ -5,8 +5,9 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>personal_website_api</RootNamespace>
+    <UseAzureFunctionsWorker>true</UseAzureFunctionsWorker> <!-- ✅ required -->
   </PropertyGroup>
+
   <ItemGroup>
   <!-- Functions Worker SDK (emits function.json) -->
   <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk"
