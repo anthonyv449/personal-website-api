@@ -36,11 +36,11 @@ var host = Host.CreateDefaultBuilder(args)
             if (string.IsNullOrWhiteSpace(conn))
                 throw new InvalidOperationException("❌ Postgres connection string is not configured!");
 
-            services.AddDbContextFactory<MyDbContext>(opts =>
-            {
-                Console.WriteLine("🧱 Configuring DbContextFactory...");
-                opts.UseNpgsql(conn);
-            });
+            // services.AddDbContextFactory<MyDbContext>(opts =>
+            // {
+            //     Console.WriteLine("🧱 Configuring DbContextFactory...");
+            //     opts.UseNpgsql(conn);
+            // });
 
             services.AddTransient<HttpExample>();
 
@@ -55,11 +55,11 @@ var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 // ── auto-migrate pending EF Core migrations on cold start ──
-using (var scope = host.Services.CreateScope())
-{
-    var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MyDbContext>>();
-    await using var db = factory.CreateDbContext();
-    db.Database.Migrate();
-}
+// using (var scope = host.Services.CreateScope())
+// {
+//     var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MyDbContext>>();
+//     await using var db = factory.CreateDbContext();
+//     db.Database.Migrate();
+// }
 
 host.Run();
