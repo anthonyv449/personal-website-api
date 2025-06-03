@@ -7,6 +7,7 @@ using Microsoft.Azure.Functions.Worker.Configuration;
 using Microsoft.EntityFrameworkCore;
 using MyIsolatedFuncApp;      // your root namespace
 using MyIsolatedFuncApp.Data; // where MyDbContext lives
+using personal_website_api;
 
 Console.WriteLine("🚀 Function App Host starting...");
 
@@ -29,7 +30,7 @@ var host = Host.CreateDefaultBuilder(args)
         {
             Console.WriteLine("🧪 Starting ConfigureServices...");
 
-            var conn = context.Configuration.GetConnectionString("Default");
+            var conn = context.Configuration.GetConnectionString("PostgresConnection");
             Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrEmpty(conn) ? "[EMPTY]" : "[OK]")}");
 
             if (string.IsNullOrWhiteSpace(conn))
@@ -41,7 +42,7 @@ var host = Host.CreateDefaultBuilder(args)
                 opts.UseNpgsql(conn);
             });
 
-            services.AddTransient<UserFunctions>();
+            services.AddTransient<HttpExample>();
 
             Console.WriteLine("✅ ConfigureServices finished successfully");
         }
