@@ -25,6 +25,10 @@
   <!-- Your other deps (EF Core, etc.) -->
   <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"
                     Version="9.0.4" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Design"
+                    Version="9.0.5">
+    <PrivateAssets>all</PrivateAssets>
+  </PackageReference>
 </ItemGroup>
 
 <ItemGroup>
