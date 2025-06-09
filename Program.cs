@@ -43,7 +43,7 @@ var host = Host.CreateDefaultBuilder(args)
             });
 
             services.AddTransient<HttpExample>(); // or your function class using DbContext
-
+            services.AddTransient<UsersFunctions>();
             Console.WriteLine("✅ ConfigureServices finished successfully");
         }
         catch (Exception ex)

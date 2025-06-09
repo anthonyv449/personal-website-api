@@ -4,25 +4,24 @@
 
 namespace personal_website_api.Migrations
 {
-    /// <inheritdoc />
     public partial class AddEmailToUsers : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Email",
-                table: "Users",
-                type: "text",
-                nullable: true);
+            // Add the Email column only if it doesn't already exist
+            migrationBuilder.Sql(@"
+                ALTER TABLE ""Users""
+                ADD COLUMN IF NOT EXISTS ""Email"" text;
+            ");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Email",
-                table: "Users");
+            // Drop the Email column only if it exists
+            migrationBuilder.Sql(@"
+                ALTER TABLE ""Users""
+                DROP COLUMN IF EXISTS ""Email"";
+            ");
         }
     }
 }
