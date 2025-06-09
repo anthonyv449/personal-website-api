@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -23,6 +24,26 @@ namespace personal_website_api
         }
 
         private class TokenRequest { public string? IdToken { get; set; } }
+
+        private static string? GetSessionId(HttpRequestData req)
+        {
+            if (req.Headers.TryGetValues("Cookie", out var values))
+            {
+                var cookieHeader = System.Linq.Enumerable.FirstOrDefault(values);
+                if (cookieHeader != null)
+                {
+                    foreach (var part in cookieHeader.Split(';'))
+                    {
+                        var trimmed = part.Trim();
+                        if (trimmed.StartsWith("session="))
+                        {
+                            return trimmed.Substring("session=".Length);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
 
         [Function("MicrosoftLogin")]
         public async Task<HttpResponseData> MicrosoftLogin(
@@ -58,12 +79,33 @@ namespace personal_website_api
 
             var user = await Auth.LoginWithJwtLogic.Execute(_db, payload.Name ?? "Unknown", payload.Email);
 
-            // create session token - here simple GUID
-            var session = System.Guid.NewGuid().ToString();
+            // create session in database
+            var session = await CreateSessionLogic.Execute(_db, user.Id);
             var okRes = req.CreateResponse(HttpStatusCode.OK);
             okRes.Headers.Add("Set-Cookie", $"session={session}; HttpOnly; Secure; SameSite=None; Path=/");
             await okRes.WriteAsJsonAsync(new { user.Id, user.Name, user.Email });
             return okRes;
+        }
+
+        [Function("GetMe")]
+        public async Task<HttpResponseData> GetMe(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "auth/me")] HttpRequestData req)
+        {
+            var sessionId = GetSessionId(req);
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return req.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
+            var user = await GetUserBySessionLogic.Execute(_db, sessionId);
+            if (user == null)
+            {
+                return req.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
+            var res = req.CreateResponse(HttpStatusCode.OK);
+            await res.WriteAsJsonAsync(new { user.Id, user.Email, user.Name });
+            return res;
         }
     }
 }
