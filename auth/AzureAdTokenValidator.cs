@@ -14,7 +14,6 @@ namespace personal_website_api.Auth
     {
         private readonly IConfigurationManager<OpenIdConnectConfiguration> _configManager;
         private readonly string _audience;
-        private readonly string _issuer;
 
         public AzureAdTokenValidator(IConfiguration configuration)
         {
@@ -27,7 +26,6 @@ namespace personal_website_api.Auth
                 throw new InvalidOperationException("AzureAd configuration is missing TenantId or Policy");
             }
             var authority = $"https://{tenant}.b2clogin.com/{tenant}.onmicrosoft.com/{policy}/v2.0";
-            _issuer = authority + "/";
             var documentRetriever = new HttpDocumentRetriever { RequireHttps = true };
             _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(
                 authority + "/.well-known/openid-configuration",
