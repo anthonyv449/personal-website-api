@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MyIsolatedFuncApp;      // your root namespace
 using MyIsolatedFuncApp.Data; // where MyDbContext lives
 using personal_website_api;
+using personal_website_api.Auth;
 
 Console.WriteLine("🚀 Function App Host starting...");
 
@@ -45,6 +46,8 @@ var host = Host.CreateDefaultBuilder(args)
 
             services.AddTransient<HttpExample>(); // or your function class using DbContext
             services.AddTransient<UsersFunctions>();
+            services.AddTransient<AuthFunctions>();
+            services.AddTransient<IGoogleTokenValidator, Auth.GoogleTokenValidator>();
             Console.WriteLine("✅ ConfigureServices finished successfully");
         }
         catch (Exception ex)
