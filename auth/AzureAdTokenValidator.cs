@@ -17,9 +17,9 @@ namespace personal_website_api.Auth
 
         public AzureAdTokenValidator(IConfiguration configuration)
         {
-            var tenant = configuration["AzureAd:TenantId"] ?? configuration["AzureAd:Tenant"];
-            var policy = configuration["AzureAd:Policy"];
-            _audience = configuration["AzureAd:ClientId"] ?? string.Empty;
+            var tenant = configuration["AzureAdTenant"];
+            var policy = configuration["AzureAdPolicy"];
+            _audience = configuration["AzureAdClientId"] ?? string.Empty;
 
             if (string.IsNullOrEmpty(tenant) || string.IsNullOrEmpty(policy))
             {

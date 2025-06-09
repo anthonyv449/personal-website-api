@@ -4,8 +4,8 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "PostgresConnection": "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres",
-    "AzureAd:Tenant": "papichuloant",
-    "AzureAd:Policy":"B2C_1_signin-signout",
-    "AzureAd:ClientId":"0cf6163b-47fb-4c0c-ab60-9cfc837f00ca"
+    "AzureAdTenant": "papichuloant",
+    "AzureAdPolicy":"B2C_1_signin-signout",
+    "AzureAdClientId":"0cf6163b-47fb-4c0c-ab60-9cfc837f00ca"
   }
 }
