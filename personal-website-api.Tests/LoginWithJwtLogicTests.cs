@@ -6,7 +6,7 @@ using MyDbContext = MyIsolatedFuncApp.Data.MyDbContext;
 
 namespace personal_website_api.Tests
 {
-    public class LoginWithGoogleLogicTests
+    public class LoginWithJwtLogicTests
     {
         private static MyDbContext CreateContext()
         {
@@ -20,7 +20,7 @@ namespace personal_website_api.Tests
         public async Task Execute_CreatesUser_IfNotExists()
         {
             using var context = CreateContext();
-            var user = await LoginWithGoogleLogic.Execute(context, "Jane", "jane@example.com");
+            var user = await LoginWithJwtLogic.Execute(context, "Jane", "jane@example.com");
             Assert.Equal(1, await context.Users.CountAsync());
             Assert.Equal("jane@example.com", user.Email);
         }
@@ -32,7 +32,7 @@ namespace personal_website_api.Tests
             context.Users.Add(new UsersEntity { Name = "Jane", Email = "jane@example.com" });
             await context.SaveChangesAsync();
 
-            var user = await LoginWithGoogleLogic.Execute(context, "Jane", "jane@example.com");
+            var user = await LoginWithJwtLogic.Execute(context, "Jane", "jane@example.com");
             Assert.Equal(1, await context.Users.CountAsync());
             Assert.Equal("jane@example.com", user.Email);
         }

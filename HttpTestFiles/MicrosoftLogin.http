@@ -1,4 +1,4 @@
-POST http://localhost:7071/api/auth/google
+POST http://localhost:7071/api/auth/microsoft
 Content-Type: application/json
 
 {

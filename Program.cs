@@ -47,7 +47,7 @@ var host = Host.CreateDefaultBuilder(args)
             services.AddTransient<HttpExample>(); // or your function class using DbContext
             services.AddTransient<UsersFunctions>();
             services.AddTransient<AuthFunctions>();
-            services.AddTransient<IGoogleTokenValidator, Auth.GoogleTokenValidator>();
+            services.AddTransient<ITokenValidator, AzureAdTokenValidator>();
             Console.WriteLine("✅ ConfigureServices finished successfully");
         }
         catch (Exception ex)

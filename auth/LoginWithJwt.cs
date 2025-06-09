@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace personal_website_api.Auth
 {
-    public static class LoginWithGoogleLogic
+    public static class LoginWithJwtLogic
     {
         public static async Task<UsersEntity> Execute(MyDbContext db, string name, string email)
         {
