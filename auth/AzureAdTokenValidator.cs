@@ -42,7 +42,7 @@ namespace personal_website_api.Auth
             var result = handler.ValidateToken(token, new TokenValidationParameters
             {
                 ValidAudience = _audience,
-                ValidIssuer = _issuer,
+                ValidIssuer = config.Issuer,
                 IssuerSigningKeys = config.SigningKeys,
                 ValidateLifetime = true,
                 ValidateIssuer = true,
