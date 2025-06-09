@@ -30,7 +30,7 @@ var host = Host.CreateDefaultBuilder(args)
         {
             Console.WriteLine("🧪 Starting ConfigureServices...");
 
-            var conn = context.Configuration["PostgresConnection"];
+            var conn = context.Configuration["Values:PostgresConnection"];
             Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrWhiteSpace(conn) ? "[EMPTY]" : "[OK]")}");
 
             if (string.IsNullOrWhiteSpace(conn))
