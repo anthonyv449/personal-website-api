@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Google.Apis.Auth;
@@ -31,7 +32,13 @@ namespace personal_website_api
             var body = await req.ReadFromJsonAsync<TokenRequest>();
             if (body?.IdToken == null)
             {
-                return req.CreateResponse(HttpStatusCode.BadRequest);
+                var res = req.CreateResponse(HttpStatusCode.BadRequest);
+                await res.WriteAsJsonAsync(new
+                {
+                    message = "idToken is required",
+                    stackTrace = Environment.StackTrace
+                });
+                return res;
             }
 
             GoogleJsonWebSignature.Payload payload;
@@ -39,9 +46,15 @@ namespace personal_website_api
             {
                 payload = await _validator.ValidateAsync(body.IdToken);
             }
-            catch
+            catch (Exception ex)
             {
-                return req.CreateResponse(HttpStatusCode.Unauthorized);
+                var res = req.CreateResponse(HttpStatusCode.Unauthorized);
+                await res.WriteAsJsonAsync(new
+                {
+                    message = ex.Message,
+                    stackTrace = ex.StackTrace
+                });
+                return res;
             }
 
             var user = await Auth.LoginWithGoogleLogic.Execute(_db, payload.Name ?? "Unknown", payload.Email);
