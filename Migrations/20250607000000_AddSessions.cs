@@ -7,9 +7,9 @@ namespace personal_website_api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-                CREATE TABLE IF NOT EXISTS \"Sessions\" (
-                    \"Id\" text NOT NULL PRIMARY KEY,
-                    \"UserId\" integer NOT NULL REFERENCES \"Users\"(\"Id\") ON DELETE CASCADE
+                CREATE TABLE IF NOT EXISTS ""Sessions"" (
+                    ""Id"" text NOT NULL PRIMARY KEY,
+                    ""UserId"" integer NOT NULL REFERENCES ""Users""(""Id"") ON DELETE CASCADE
                 );
             ");
         }
