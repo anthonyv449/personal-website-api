@@ -107,5 +107,19 @@ namespace personal_website_api
             await res.WriteAsJsonAsync(new { user.Id, user.Email, user.Name });
             return res;
         }
+
+        [Function("Logout")]
+        public async Task<HttpResponseData> Logout(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth/logout")] HttpRequestData req)
+        {
+            var sessionId = GetSessionId(req);
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                await DeleteSessionLogic.Execute(_db, sessionId);
+            }
+            var res = req.CreateResponse(HttpStatusCode.NoContent);
+            res.Headers.Add("Set-Cookie", "session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0");
+            return res;
+        }
     }
 }
