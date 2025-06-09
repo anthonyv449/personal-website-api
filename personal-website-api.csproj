@@ -35,12 +35,4 @@
     <Compile Remove="personal-website-api.Tests/**" />
   </ItemGroup>
 
-<ItemGroup>
-  <None Update="local.settings.json">
-    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-  </None>
-</ItemGroup>
-
-
 </Project>
