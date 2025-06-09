@@ -31,12 +31,8 @@
   </PackageReference>
 </ItemGroup>
 
-<ItemGroup>
-  <None Update="local.settings.json">
-    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-  </None>
-</ItemGroup>
-
+  <ItemGroup>
+    <Compile Remove="personal-website-api.Tests/**" />
+  </ItemGroup>
 
 </Project>

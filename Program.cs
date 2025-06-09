@@ -30,7 +30,8 @@ var host = Host.CreateDefaultBuilder(args)
         {
             Console.WriteLine("🧪 Starting ConfigureServices...");
 
-            var conn = context.Configuration["PostgresConnection"];
+            var conn = context.Configuration["PostgresConnection"] ??
+                       context.Configuration["Values:PostgresConnection"];
             Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrWhiteSpace(conn) ? "[EMPTY]" : "[OK]")}");
 
             if (string.IsNullOrWhiteSpace(conn))
@@ -43,7 +44,7 @@ var host = Host.CreateDefaultBuilder(args)
             });
 
             services.AddTransient<HttpExample>(); // or your function class using DbContext
-
+            services.AddTransient<UsersFunctions>();
             Console.WriteLine("✅ ConfigureServices finished successfully");
         }
         catch (Exception ex)
