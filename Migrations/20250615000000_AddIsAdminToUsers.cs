@@ -9,16 +9,16 @@ namespace personal_website_api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-                ALTER TABLE \"Users\"
-                ADD COLUMN IF NOT EXISTS \"IsAdmin\" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE ""Users""
+                ADD COLUMN IF NOT EXISTS ""IsAdmin"" boolean NOT NULL DEFAULT FALSE;
             ");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-                ALTER TABLE \"Users\"
-                DROP COLUMN IF EXISTS \"IsAdmin\";
+                ALTER TABLE ""Users""
+                DROP COLUMN IF EXISTS ""IsAdmin"";
             ");
         }
     }
