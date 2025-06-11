@@ -13,7 +13,7 @@ namespace personal_website_api.Migrations
 {
     [DbContext(typeof(MyDbContext))]
     [Migration("20250611042858_AddArticle")]
-    partial class AddArticle
+    partial class AddArticles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
