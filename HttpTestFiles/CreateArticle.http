@@ -1,4 +1,5 @@
-POST http://localhost:7071/api/articles
+POST http://localhost:7071/api/articles?userId=REPLACE_WITH_USER_ID
+Cookie: session=REPLACE_WITH_SESSION
 Content-Type: application/json
 
 {

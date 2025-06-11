@@ -27,6 +27,7 @@ namespace MyIsolatedFuncApp.Data
         public string Name { get; set; } = "NA";
         [Required]
         public string Email { get; set; } = "NA";
+        public bool IsAdmin { get; set; } = false;
     }
 
     public class Session
