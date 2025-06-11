@@ -7,6 +7,10 @@ using Microsoft.Azure.Functions.Worker.Configuration;
 using Microsoft.EntityFrameworkCore;
 using MyIsolatedFuncApp;      // your root namespace
 using MyIsolatedFuncApp.Data; // where MyDbContext lives
+using personal_website_api;
+using personal_website_api.Auth;
+
+Console.WriteLine("🚀 Function App Host starting...");
 
 var host = Host.CreateDefaultBuilder(args)
     // 1) load local.settings.json (for local) and env vars (for Azure)
@@ -23,23 +27,53 @@ var host = Host.CreateDefaultBuilder(args)
     // 3) register your DbContext factory
     .ConfigureServices((context, services) =>
     {
-        // **Note**: no trailing space in the key name!
-        var conn = context.Configuration["PostgresConnection"];
-        if (string.IsNullOrWhiteSpace(conn))
-            throw new InvalidOperationException("PostgresConnection is not configured!");
+        try
+        {
+            Console.WriteLine("🧪 Starting ConfigureServices...");
 
-        services.AddDbContextFactory<MyDbContext>(opts =>
-            opts.UseNpgsql(conn)
-        );
+            var conn = context.Configuration["PostgresConnection"] ??
+                       context.Configuration["Values:PostgresConnection"];
+            Console.WriteLine($"🔗 Resolved connection string: {(string.IsNullOrWhiteSpace(conn) ? "[EMPTY]" : "[OK]")}");
+
+            if (string.IsNullOrWhiteSpace(conn))
+                throw new InvalidOperationException("❌ Postgres connection string is not configured!");
+
+            services.AddDbContextFactory<MyDbContext>(opts =>
+            {
+                Console.WriteLine("🧱 Configuring DbContextFactory...");
+                opts.UseNpgsql(conn);
+            });
+
+            services.AddTransient<HttpExample>(); // or your function class using DbContext
+            services.AddTransient<UsersFunctions>();
+            services.AddTransient<AuthFunctions>();
+            services.AddTransient<ITokenValidator, AzureAdTokenValidator>();
+            Console.WriteLine("✅ ConfigureServices finished successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"💥 Fatal startup exception: {ex}");
+            throw;
+        }
     })
+
     .Build();
 
 // ── auto-migrate pending EF Core migrations on cold start ──
-using (var scope = host.Services.CreateScope())
+try
 {
+    using var scope = host.Services.CreateScope();
     var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MyDbContext>>();
     await using var db = factory.CreateDbContext();
+    Console.WriteLine("🔁 Applying EF Core migrations...");
     db.Database.Migrate();
+    Console.WriteLine("✅ Migrations applied.");
 }
+catch (Exception ex)
+{
+    Console.WriteLine($"💥 Migration failure: {ex.Message}");
+    // optionally rethrow if you want to fail the app
+}
+
 
 host.Run();

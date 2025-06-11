@@ -1,0 +1,8 @@
+POST http://localhost:7071/api/auth/microsoft
+Content-Type: application/json
+
+{
+  "idToken": "REPLACE_WITH_TOKEN"
+}
+
+###

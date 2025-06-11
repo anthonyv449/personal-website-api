@@ -1,0 +1,4 @@
+GET http://localhost:7071/api/auth/me
+Cookie: session=REPLACE_WITH_SESSION
+
+###
