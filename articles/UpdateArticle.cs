@@ -20,8 +20,8 @@ namespace personal_website_api.Articles
             article.DateUploaded = updated.DateUploaded;
             article.DateModified = updated.DateModified;
             article.Active = updated.Active;
-            article.Owner = updated.Owner;
-            article.LastModifiedUser = updated.LastModifiedUser;
+            article.OwnerId = updated.OwnerId;
+            article.LastModifiedUserId = updated.LastModifiedUserId;
             article.Views = updated.Views;
             article.Title = updated.Title;
             article.Slug = updated.Slug;
