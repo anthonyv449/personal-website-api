@@ -1,0 +1,4 @@
+GET http://localhost:7071/api/articles
+Accept: application/json
+
+###
