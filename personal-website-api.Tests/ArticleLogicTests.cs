@@ -24,8 +24,11 @@ namespace personal_website_api.Tests
         {
             using var context = CreateContext();
             var article = new ArticleEntity { Title = "Hello", Content = "Body" };
-            await CreateArticleLogic.Execute(context, article);
+            var result = await CreateArticleLogic.Execute(context, article);
+
             Assert.Equal(1, await context.Articles.CountAsync());
+            Assert.True((DateTime.UtcNow - result.DateUploaded).TotalSeconds < 5);
+            Assert.True((DateTime.UtcNow - result.DateModified).TotalSeconds < 5);
         }
 
         [Fact]
