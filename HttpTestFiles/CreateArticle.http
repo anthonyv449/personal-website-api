@@ -1,0 +1,10 @@
+POST http://localhost:7071/api/articles
+Content-Type: application/json
+
+{
+  "title": "My First Article",
+  "content": "Hello world",
+  "author": "codex"
+}
+
+###

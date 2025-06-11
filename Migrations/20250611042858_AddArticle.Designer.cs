@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyIsolatedFuncApp.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace personal_website_api.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250611042858_AddArticle")]
+    partial class AddArticles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,12 +37,15 @@ namespace personal_website_api.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Author")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CanonicalUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("DateModified")
@@ -48,19 +54,24 @@ namespace personal_website_api.Migrations
                     b.Property<DateTime>("DateUploaded")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("LastModifiedUserId")
-                        .HasColumnType("integer");
+                    b.Property<string>("LastModifiedUser")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Owner")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("SeoDescription")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SeoKeywords")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SeoTitle")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Slug")
@@ -68,19 +79,22 @@ namespace personal_website_api.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("SocialImageUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Summary")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.PrimitiveCollection<string[]>("Tags")
+                        .IsRequired()
                         .HasColumnType("text[]");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("Views")
+                    b.Property<int>("Views")
                         .HasColumnType("integer");
 
                     b.HasKey("ArticleId");

@@ -9,6 +9,7 @@ using MyIsolatedFuncApp;      // your root namespace
 using MyIsolatedFuncApp.Data; // where MyDbContext lives
 using personal_website_api;
 using personal_website_api.Auth;
+using personal_website_api.Articles;
 
 Console.WriteLine("🚀 Function App Host starting...");
 
@@ -46,6 +47,7 @@ var host = Host.CreateDefaultBuilder(args)
 
             services.AddTransient<HttpExample>(); // or your function class using DbContext
             services.AddTransient<UsersFunctions>();
+            services.AddTransient<ArticleFunctions>();
             services.AddTransient<AuthFunctions>();
             services.AddTransient<ITokenValidator, AzureAdTokenValidator>();
             Console.WriteLine("✅ ConfigureServices finished successfully");
