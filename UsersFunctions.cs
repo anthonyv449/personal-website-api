@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using MyIsolatedFuncApp.Data;
 using personal_website_api.Users;
+using personal_website_api.Auth;
 using UsersEntity = MyIsolatedFuncApp.Data.Users;
 
 namespace personal_website_api
@@ -34,6 +35,9 @@ namespace personal_website_api
         public async Task<HttpResponseData> CreateUser(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "users")] HttpRequestData req)
         {
+            var auth = await AuthorizationHelper.RequireAdmin(req, _db);
+            if (auth != null) return auth;
+
             var newUser = await req.ReadFromJsonAsync<UsersEntity>();
             if (newUser == null)
             {
@@ -50,6 +54,9 @@ namespace personal_website_api
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "users/{id:int}")] HttpRequestData req,
             int id)
         {
+            var auth = await AuthorizationHelper.RequireAdmin(req, _db);
+            if (auth != null) return auth;
+
             var updated = await req.ReadFromJsonAsync<UsersEntity>();
             if (updated == null)
             {
@@ -70,6 +77,9 @@ namespace personal_website_api
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "users/{id:int}")] HttpRequestData req,
             int id)
         {
+            var auth = await AuthorizationHelper.RequireAdmin(req, _db);
+            if (auth != null) return auth;
+
             var success = await DeleteUserLogic.Execute(_db, id);
             return req.CreateResponse(success ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }

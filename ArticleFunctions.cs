@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using MyIsolatedFuncApp.Data;
 using personal_website_api.Articles;
+using personal_website_api.Auth;
 using ArticleEntity = MyIsolatedFuncApp.Data.Article;
 using System.Text.Json;
 using System.IO;
@@ -37,6 +38,9 @@ namespace personal_website_api
         public async Task<HttpResponseData> CreateArticle(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "articles")] HttpRequestData req)
         {
+            var auth = await AuthorizationHelper.RequireAdmin(req, _db);
+            if (auth != null) return auth;
+
             var newArticle = await req.ReadFromJsonAsync<ArticleEntity>();
             if (newArticle == null)
             {
@@ -53,6 +57,9 @@ namespace personal_website_api
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "articles/{id:int}")] HttpRequestData req,
             int id)
         {
+            var auth = await AuthorizationHelper.RequireAdmin(req, _db);
+            if (auth != null) return auth;
+
             string body = await new StreamReader(req.Body).ReadToEndAsync();
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var updated = JsonSerializer.Deserialize<ArticleEntity>(body, options);
@@ -76,6 +83,9 @@ namespace personal_website_api
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "articles/{id:int}")] HttpRequestData req,
             int id)
         {
+            var auth = await AuthorizationHelper.RequireAdmin(req, _db);
+            if (auth != null) return auth;
+
             var success = await DeleteArticleLogic.Execute(_db, id);
             return req.CreateResponse(success ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
