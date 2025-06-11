@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 using MyIsolatedFuncApp.Data;
 using personal_website_api.Articles;
 using ArticleEntity = MyIsolatedFuncApp.Data.Article;
+using System.Text.Json;
+using System.IO;
+using System.Collections.Generic;
 
 namespace personal_website_api
 {
@@ -50,12 +53,15 @@ namespace personal_website_api
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "articles/{id:int}")] HttpRequestData req,
             int id)
         {
-            var updated = await req.ReadFromJsonAsync<ArticleEntity>();
+            string body = await new StreamReader(req.Body).ReadToEndAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var updated = JsonSerializer.Deserialize<ArticleEntity>(body, options);
             if (updated == null)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
-            var result = await UpdateArticleLogic.Execute(_db, id, updated);
+            var fields = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body, options);
+            var result = await UpdateArticleLogic.Execute(_db, id, updated, fields);
             if (result == null)
             {
                 return req.CreateResponse(HttpStatusCode.NotFound);
