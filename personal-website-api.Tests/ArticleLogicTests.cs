@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using personal_website_api.Articles;
 using ArticleEntity = MyIsolatedFuncApp.Data.Article;
 using MyDbContext = MyIsolatedFuncApp.Data.MyDbContext;
+using System.Collections.Generic;
+using System.Text.Json;
 using Xunit;
 
 namespace personal_website_api.Tests
@@ -47,11 +49,37 @@ namespace personal_website_api.Tests
             await context.SaveChangesAsync();
 
             var updated = new ArticleEntity { Title = "New", Content = "Y" };
-            var result = await UpdateArticleLogic.Execute(context, article.ArticleId, updated);
+            var fields = new System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>
+            {
+                ["title"] = default,
+                ["content"] = default
+            };
+            var result = await UpdateArticleLogic.Execute(context, article.ArticleId, updated, fields);
 
             Assert.NotNull(result);
             Assert.Equal("New", result!.Title);
             Assert.Equal("Y", result.Content);
+        }
+
+        [Fact]
+        public async Task UpdateArticle_DoesNotChangeMissingFields()
+        {
+            using var context = CreateContext();
+            var article = new ArticleEntity { Title = "Old", Content = "X", Author = "Bob" };
+            context.Articles.Add(article);
+            await context.SaveChangesAsync();
+
+            var updated = new ArticleEntity { Title = "New" };
+            var fields = new System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>
+            {
+                ["title"] = default
+            };
+            var result = await UpdateArticleLogic.Execute(context, article.ArticleId, updated, fields);
+
+            Assert.NotNull(result);
+            Assert.Equal("New", result!.Title);
+            Assert.Equal("X", result.Content); // unchanged
+            Assert.Equal("Bob", result.Author); // unchanged
         }
 
         [Fact]
