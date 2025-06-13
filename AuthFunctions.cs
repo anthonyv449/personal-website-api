@@ -83,7 +83,7 @@ namespace personal_website_api
             var session = await CreateSessionLogic.Execute(_db, user.Id);
             var okRes = req.CreateResponse(HttpStatusCode.OK);
             okRes.Headers.Add("Set-Cookie", $"session={session}; HttpOnly; Secure; SameSite=None; Path=/");
-            await okRes.WriteAsJsonAsync(new { user.Id, user.Name, user.Email });
+            await okRes.WriteAsJsonAsync(new { user.Id, user.Name, user.Email, user.IsAdmin });
             return okRes;
         }
 
@@ -104,7 +104,7 @@ namespace personal_website_api
             }
 
             var res = req.CreateResponse(HttpStatusCode.OK);
-            await res.WriteAsJsonAsync(new { user.Id, user.Email, user.Name });
+            await res.WriteAsJsonAsync(new { user.Id, user.Email, user.Name, user.IsAdmin });
             return res;
         }
 
