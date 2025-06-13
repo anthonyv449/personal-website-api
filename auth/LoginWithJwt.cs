@@ -16,6 +16,11 @@ namespace personal_website_api.Auth
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
             }
+            if (user.Name == "Unknown")
+            {
+                user.Name = name;
+                await db.SaveChangesAsync();
+            }
             return user;
         }
     }

@@ -47,7 +47,7 @@ namespace personal_website_api.Auth
                 ValidateAudience = true
             }, out var _);
 
-            var name = result.FindFirst(ClaimTypes.Name)?.Value ?? result.Identity?.Name;
+            var name = result.FindFirst(ClaimTypes.Name)?.Value ?? result.FindFirst("name")?.Value;
             var email = result.FindFirst(ClaimTypes.Email)?.Value ?? result.FindFirst("emails")?.Value;
             return new AuthTokenPayload { Name = name, Email = email };
         }
