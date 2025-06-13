@@ -1,5 +1,6 @@
 {
     "version": "2.0",
+    "extensions": { "http": {} },
     "logging": {
         "applicationInsights": {
             "samplingSettings": {
@@ -8,5 +9,9 @@
             },
             "enableLiveMetricsFilters": true
         }
-    }
+    },
+    "cors": {
+    "allowedOrigins": [ "https://learningwithant.com" ],
+    "supportCredentials": true
+  }
 }
