@@ -24,6 +24,7 @@ namespace personal_website_api
             _db = db;
         }
 
+
         [Function("GetArticles")]
         public async Task<HttpResponseData> GetArticles(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "articles")] HttpRequestData req)
@@ -41,11 +42,19 @@ namespace personal_website_api
             var auth = await AuthorizationHelper.RequireAdmin(req, _db);
             if (auth != null) return auth;
 
+            var user = await AuthorizationHelper.GetUserFromSession(req, _db);
+            if (user == null)
+            {
+                return req.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
             var newArticle = await req.ReadFromJsonAsync<ArticleEntity>();
             if (newArticle == null)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
+            newArticle.OwnerId = user.Id;
+
             var created = await CreateArticleLogic.Execute(_db, newArticle);
             var res = req.CreateResponse(HttpStatusCode.Created);
             await res.WriteAsJsonAsync(created);
