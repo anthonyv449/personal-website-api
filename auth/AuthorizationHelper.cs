@@ -64,5 +64,27 @@ namespace personal_website_api.Auth
 
             return null;
         }
+        public static async Task<UsersEntity?> GetUserFromSession(HttpRequestData req, MyDbContext db)
+        {
+            var sessionId = GetSessionId(req);
+            UsersEntity? user = null;
+
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                user = await GetUserBySessionLogic.Execute(db, sessionId);
+                return user;
+            }
+            else
+            {
+                var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
+                if (!int.TryParse(query["userId"], out var userId))
+                {
+                    return req.CreateResponse(HttpStatusCode.Unauthorized);
+                }
+
+                user = await db.Users.FindAsync(userId);
+                return user;
+            }
+        }
     }
 }
