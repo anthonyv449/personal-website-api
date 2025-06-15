@@ -65,5 +65,16 @@ namespace personal_website_api.Auth
             return null;
         }
 
+        public static async Task<UsersEntity?> GetUserFromSession(HttpRequestData req, MyDbContext db)
+        {
+            var sessionId = GetSessionId(req);
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                return null;
+            }
+
+            return await GetUserBySessionLogic.Execute(db, sessionId);
+        }
+
     }
 }
