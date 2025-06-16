@@ -10,6 +10,7 @@
 
   <ItemGroup>
   <!-- Functions Worker SDK (emits function.json) -->
+  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.2" />
   <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.2" OutputItemType="Analyzer" />
 
   <!-- Core isolated-worker runtime -->
@@ -17,6 +18,7 @@
 
   <!-- HTTP trigger binding for isolated worker -->
   <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
+  <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.41" />
   <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.0.3" />
 
   <!-- Your other deps (EF Core, etc.) -->

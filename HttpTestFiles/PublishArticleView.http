@@ -1,0 +1,8 @@
+POST http://localhost:7071/api/articles/viewed
+Content-Type: application/json
+
+{
+  "articleId": 1,
+  "viewerId": "user1",
+  "viewedAt": "2025-06-16T00:00:00Z"
+}

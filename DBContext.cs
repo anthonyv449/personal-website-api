@@ -53,6 +53,7 @@ namespace MyIsolatedFuncApp.Data
         public int OwnerId { get; set; } // maps to Users table
         public int LastModifiedUserId { get; set; } // maps to Users table
         public int? Views { get; set; } // nullable
+        public DateTime? LastViewedAt { get; set; } // nullable
 
         public string Title { get; set; } = string.Empty; // non-nullable
         public string Slug { get; set; } = string.Empty; // required
