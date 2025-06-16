@@ -44,6 +44,19 @@ namespace personal_website_api.Tests
         }
 
         [Fact]
+        public async Task GetArticle_BySlug_ReturnsSingle()
+        {
+            using var context = CreateContext();
+            context.Articles.Add(new ArticleEntity { Title = "A", Slug = "a" });
+            context.Articles.Add(new ArticleEntity { Title = "B", Slug = "b" });
+            await context.SaveChangesAsync();
+
+            var article = await GetArticlesLogic.Execute(context, "b");
+            Assert.NotNull(article);
+            Assert.Equal("b", article!.Slug);
+        }
+
+        [Fact]
         public async Task UpdateArticle_UpdatesFields()
         {
             using var context = CreateContext();

@@ -27,8 +27,21 @@ namespace personal_website_api
 
         [Function("GetArticles")]
         public async Task<HttpResponseData> GetArticles(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "articles")] HttpRequestData req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "articles/{slug?}")] HttpRequestData req,
+            string? slug)
         {
+            if (!string.IsNullOrEmpty(slug))
+            {
+                var article = await GetArticlesLogic.Execute(_db, slug);
+                if (article == null)
+                {
+                    return req.CreateResponse(HttpStatusCode.NotFound);
+                }
+                var singleRes = req.CreateResponse(HttpStatusCode.OK);
+                await singleRes.WriteAsJsonAsync(article);
+                return singleRes;
+            }
+
             var articles = await GetArticlesLogic.Execute(_db);
             var res = req.CreateResponse(HttpStatusCode.OK);
             await res.WriteAsJsonAsync(articles);

@@ -39,6 +39,7 @@ namespace MyIsolatedFuncApp.Data
         public int UserId { get; set; }
     }
 
+    [Index(nameof(Slug), IsUnique = true)]
       public class Article
     {
         [Key]
