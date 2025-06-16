@@ -13,6 +13,7 @@ using personal_website_api.Articles;
 using personal_website_api.Publishers;
 using personal_website_api.Subscribers;
 using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 
 Console.WriteLine("🚀 Function App Host starting...");
 
@@ -51,6 +52,7 @@ var host = Host.CreateDefaultBuilder(args)
             var sbConn = context.Configuration["ServiceBusConnection"] ??
                          context.Configuration["Values:ServiceBusConnection"];
             services.AddSingleton(new ServiceBusClient(sbConn));
+            services.AddSingleton(new ServiceBusAdministrationClient(sbConn));
             services.AddSingleton<IServiceBusMessageSender, ServiceBusMessageSender>();
 
             services.AddTransient<ArticleViewPublisher>();
@@ -81,6 +83,9 @@ try
     Console.WriteLine("🔁 Applying EF Core migrations...");
     db.Database.Migrate();
     Console.WriteLine("✅ Migrations applied.");
+
+    var admin = scope.ServiceProvider.GetRequiredService<ServiceBusAdministrationClient>();
+    await EnsureServiceBusEntities(admin);
 }
 catch (Exception ex)
 {
@@ -90,3 +95,19 @@ catch (Exception ex)
 
 
 host.Run();
+
+static async Task EnsureServiceBusEntities(ServiceBusAdministrationClient admin)
+{
+    const string topic = "article-views";
+    const string subscription = "view-updater";
+
+    if (!await admin.TopicExistsAsync(topic))
+    {
+        await admin.CreateTopicAsync(topic);
+    }
+
+    if (!await admin.SubscriptionExistsAsync(topic, subscription))
+    {
+        await admin.CreateSubscriptionAsync(topic, subscription);
+    }
+}
