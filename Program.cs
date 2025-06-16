@@ -14,6 +14,8 @@ using personal_website_api.Publishers;
 using personal_website_api.Subscribers;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
+using Azure.AI.OpenAI;
+using Azure;
 
 Console.WriteLine("🚀 Function App Host starting...");
 
@@ -54,6 +56,12 @@ var host = Host.CreateDefaultBuilder(args)
             services.AddSingleton(new ServiceBusClient(sbConn));
             services.AddSingleton(new ServiceBusAdministrationClient(sbConn));
             services.AddSingleton<IServiceBusMessageSender, ServiceBusMessageSender>();
+
+            var oaiEndpoint = context.Configuration["AZURE_OPENAI_ENDPOINT"] ??
+                             context.Configuration["Values:AZURE_OPENAI_ENDPOINT"];
+            var oaiKey = context.Configuration["AZURE_OPENAI_KEY"] ??
+                          context.Configuration["Values:AZURE_OPENAI_KEY"];
+            services.AddSingleton(new OpenAIClient(new Uri(oaiEndpoint), new AzureKeyCredential(oaiKey)));
 
             services.AddTransient<ArticleViewPublisher>();
             services.AddTransient<ArticleViewSubscriber>();

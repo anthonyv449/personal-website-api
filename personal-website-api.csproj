@@ -27,6 +27,7 @@
     <PrivateAssets>all</PrivateAssets>
   </PackageReference>
   <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+  <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

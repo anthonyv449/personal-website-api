@@ -10,6 +10,8 @@ using ArticleEntity = MyIsolatedFuncApp.Data.Article;
 using System.Text.Json;
 using System.IO;
 using System.Collections.Generic;
+using Azure.AI.OpenAI;
+using Azure;
 
 namespace personal_website_api
 {
@@ -17,11 +19,13 @@ namespace personal_website_api
     {
         private readonly ILogger<ArticleFunctions> _logger;
         private readonly MyDbContext _db;
+        private readonly OpenAIClient _openAI;
 
-        public ArticleFunctions(ILogger<ArticleFunctions> logger, MyDbContext db)
+        public ArticleFunctions(ILogger<ArticleFunctions> logger, MyDbContext db, OpenAIClient openAI)
         {
             _logger = logger;
             _db = db;
+            _openAI = openAI;
         }
 
 
@@ -68,6 +72,29 @@ namespace personal_website_api
             }
             newArticle.OwnerId = user.Id;
 
+            var prompt = $"Fill in missing fields for an article with title: {newArticle.Title} and content: {newArticle.Content}. Return summary, SEO tags, SEO title, SEO description, SEO keywords, and estimated reading time.";
+            var completion = await _openAI.GetCompletionsAsync(
+                deploymentOrModelName: "gpt-4",
+                new CompletionsOptions
+                {
+                    Prompts = { prompt },
+                    MaxTokens = 500,
+                    Temperature = 0.7f
+                });
+
+            var aiResponse = completion.Value.Choices[0].Text;
+            newArticle.Summary = ExtractValue(aiResponse, "Summary:");
+            var tagCsv = ExtractValue(aiResponse, "SEO Tags:");
+            if (!string.IsNullOrWhiteSpace(tagCsv))
+            {
+                newArticle.Tags = tagCsv.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            }
+            newArticle.SeoTitle = ExtractValue(aiResponse, "SEO Title:");
+            newArticle.SeoDescription = ExtractValue(aiResponse, "SEO Description:");
+            newArticle.SeoKeywords = ExtractValue(aiResponse, "SEO Keywords:");
+            var readingTime = EstimateReadingTime(newArticle.Content);
+            _logger.LogInformation("Estimated reading time: {Time}", readingTime);
+
             var created = await CreateArticleLogic.Execute(_db, newArticle);
             var res = req.CreateResponse(HttpStatusCode.Created);
             await res.WriteAsJsonAsync(created);
@@ -110,6 +137,24 @@ namespace personal_website_api
 
             var success = await DeleteArticleLogic.Execute(_db, id);
             return req.CreateResponse(success ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+        }
+
+        private static string ExtractValue(string text, string label)
+        {
+            var start = text.IndexOf(label, StringComparison.OrdinalIgnoreCase);
+            if (start == -1) return string.Empty;
+            start += label.Length;
+            var end = text.IndexOf('\n', start);
+            if (end == -1) end = text.Length;
+            return text.Substring(start, end - start).Trim();
+        }
+
+        private static string EstimateReadingTime(string? content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return "0 min read";
+            var words = content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+            var minutes = Math.Max(1, (int)Math.Ceiling(words / 200.0));
+            return $"{minutes} min read";
         }
     }
 }
