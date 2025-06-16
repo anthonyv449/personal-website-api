@@ -10,6 +10,9 @@ using MyIsolatedFuncApp.Data; // where MyDbContext lives
 using personal_website_api;
 using personal_website_api.Auth;
 using personal_website_api.Articles;
+using personal_website_api.Publishers;
+using personal_website_api.Subscribers;
+using Azure.Messaging.ServiceBus;
 
 Console.WriteLine("🚀 Function App Host starting...");
 
@@ -44,6 +47,14 @@ var host = Host.CreateDefaultBuilder(args)
                 Console.WriteLine("🧱 Configuring DbContextFactory...");
                 opts.UseNpgsql(conn);
             });
+
+            var sbConn = context.Configuration["ServiceBusConnection"] ??
+                         context.Configuration["Values:ServiceBusConnection"];
+            services.AddSingleton(new ServiceBusClient(sbConn));
+            services.AddSingleton<IServiceBusMessageSender, ServiceBusMessageSender>();
+
+            services.AddTransient<ArticleViewPublisher>();
+            services.AddTransient<ArticleViewSubscriber>();
 
             services.AddTransient<HttpExample>(); // or your function class using DbContext
             services.AddTransient<UsersFunctions>();
