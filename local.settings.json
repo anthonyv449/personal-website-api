@@ -7,6 +7,8 @@
     "AzureAdTenant": "papichuloant",
     "AzureAdPolicy":"B2C_1_signin-signout",
     "AzureAdClientId":"0cf6163b-47fb-4c0c-ab60-9cfc837f00ca",
-    "ServiceBusConnection": "Endpoint=sb://learningwithant.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=adQjADd/eBe6sJpsw5dlXRKjbyWtGckQp+ASbJRsov4="
+    "ServiceBusConnection": "Endpoint=sb://learningwithant.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=adQjADd/eBe6sJpsw5dlXRKjbyWtGckQp+ASbJRsov4=",
+    "AzureWebJobs.PublishArticleView.Disabled": "true",
+    "AzureWebJobs.UpdateArticleView.Disabled": "true"
   }
 }
