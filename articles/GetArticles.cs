@@ -12,5 +12,10 @@ namespace personal_website_api.Articles
         {
             return await db.Articles.ToListAsync();
         }
+
+        public static async Task<ArticleEntity?> Execute(MyDbContext db, string slug)
+        {
+            return await db.Articles.FirstOrDefaultAsync(a => a.Slug == slug);
+        }
     }
 }
