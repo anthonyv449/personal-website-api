@@ -24,7 +24,7 @@
     <ProjectReference Include="..\personal-website-api.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.5" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.22.2" />
   </ItemGroup>
 
 </Project>
