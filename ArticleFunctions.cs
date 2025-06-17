@@ -10,6 +10,12 @@ using ArticleEntity = MyIsolatedFuncApp.Data.Article;
 using System.Text.Json;
 using System.IO;
 using System.Collections.Generic;
+using Azure;
+using Azure.AI.OpenAI;
+using System.Collections.Generic;
+using OpenAI.Chat;
+
+
 
 namespace personal_website_api
 {
@@ -17,11 +23,16 @@ namespace personal_website_api
     {
         private readonly ILogger<ArticleFunctions> _logger;
         private readonly MyDbContext _db;
+        private readonly AzureOpenAIClient  _openAI;
+        private readonly OpenAI.Chat.ChatClient _chatClient;
+        private const string OpenAIModel = "gpt-35-turbo-article-creation";
 
-        public ArticleFunctions(ILogger<ArticleFunctions> logger, MyDbContext db)
+        public ArticleFunctions(ILogger<ArticleFunctions> logger, MyDbContext db, AzureOpenAIClient openAI)
         {
             _logger = logger;
             _db = db;
+            _openAI = openAI;
+            _chatClient = openAI.GetChatClient(OpenAIModel);
         }
 
 
@@ -60,13 +71,37 @@ namespace personal_website_api
             {
                 return req.CreateResponse(HttpStatusCode.Unauthorized);
             }
-
-            var newArticle = await req.ReadFromJsonAsync<ArticleEntity>();
+            var bodyString = await new StreamReader(req.Body).ReadToEndAsync();
+            var newArticle = JsonSerializer.Deserialize<Article>(bodyString, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
             if (newArticle == null)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
             newArticle.OwnerId = user.Id;
+            newArticle.LastModifiedUserId = user.Id;
+
+            var prompt = $"Fill in missing fields for an article with title: {newArticle.Title} and content: {newArticle.Content}. Return summary, SEO tags, SEO title, SEO description, SEO keywords.";
+            ChatCompletion completion = _chatClient.CompleteChat(
+                [
+                    new SystemChatMessage("You are a helpful assistant that helps create and review articles."),
+                    new UserChatMessage(prompt),
+                ]);
+            string aiResponse = completion.Content[0].Text;
+            _logger.LogInformation("AI response content: {0}", aiResponse);
+            newArticle.Summary = ExtractValue(aiResponse, "Summary:");
+            var tagCsv = ExtractValue(aiResponse, "SEO Tags:");
+            if (!string.IsNullOrWhiteSpace(tagCsv))
+            {
+                newArticle.Tags = tagCsv.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            }
+            newArticle.SeoTitle = ExtractValue(aiResponse, "SEO Title:");
+            newArticle.SeoDescription = ExtractValue(aiResponse, "SEO Description:");
+            newArticle.SeoKeywords = ExtractValue(aiResponse, "SEO Keywords:");
+            var readingTime = EstimateReadingTime(newArticle.Content);
+            _logger.LogInformation("Estimated reading time: {Time}", readingTime);
 
             var created = await CreateArticleLogic.Execute(_db, newArticle);
             var res = req.CreateResponse(HttpStatusCode.Created);
@@ -110,6 +145,24 @@ namespace personal_website_api
 
             var success = await DeleteArticleLogic.Execute(_db, id);
             return req.CreateResponse(success ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
+        }
+
+        private static string ExtractValue(string text, string label)
+        {
+            var start = text.IndexOf(label, StringComparison.OrdinalIgnoreCase);
+            if (start == -1) return string.Empty;
+            start += label.Length;
+            var end = text.IndexOf('\n', start);
+            if (end == -1) end = text.Length;
+            return text.Substring(start, end - start).Trim();
+        }
+
+        private static string EstimateReadingTime(string? content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return "0 min read";
+            var words = content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+            var minutes = Math.Max(1, (int)Math.Ceiling(words / 200.0));
+            return $"{minutes} min read";
         }
     }
 }
