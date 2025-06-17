@@ -71,8 +71,11 @@ namespace personal_website_api
             {
                 return req.CreateResponse(HttpStatusCode.Unauthorized);
             }
-
-            var newArticle = await req.ReadFromJsonAsync<ArticleEntity>();
+            var bodyString = await new StreamReader(req.Body).ReadToEndAsync();
+            var newArticle = JsonSerializer.Deserialize<Article>(bodyString, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
             if (newArticle == null)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
