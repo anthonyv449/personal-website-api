@@ -78,13 +78,14 @@ namespace personal_website_api
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
             newArticle.OwnerId = user.Id;
+            newArticle.LastModifiedUserId = user.Id;
 
             var prompt = $"Fill in missing fields for an article with title: {newArticle.Title} and content: {newArticle.Content}. Return summary, SEO tags, SEO title, SEO description, SEO keywords.";
-           ChatCompletion completion = _chatClient.CompleteChat(
-            [
-                new SystemChatMessage("You are a helpful assistant that helps create and review articles."),
-                new UserChatMessage(prompt),
-            ]);
+            ChatCompletion completion = _chatClient.CompleteChat(
+                [
+                    new SystemChatMessage("You are a helpful assistant that helps create and review articles."),
+                    new UserChatMessage(prompt),
+                ]);
             string aiResponse = completion.Content[0].Text;
             _logger.LogInformation("AI response content: {0}", aiResponse);
             newArticle.Summary = ExtractValue(aiResponse, "Summary:");
