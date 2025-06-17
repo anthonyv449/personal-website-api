@@ -61,7 +61,7 @@ var host = Host.CreateDefaultBuilder(args)
                              context.Configuration["Values:AZURE_OPENAI_ENDPOINT"];
             var oaiKey = context.Configuration["AZURE_OPENAI_KEY"] ??
                           context.Configuration["Values:AZURE_OPENAI_KEY"];
-            services.AddSingleton(new OpenAIClient(new Uri(oaiEndpoint), new AzureKeyCredential(oaiKey)));
+            services.AddSingleton(new AzureOpenAIClient(new Uri(oaiEndpoint), new AzureKeyCredential(oaiKey)));
 
             services.AddTransient<ArticleViewPublisher>();
             services.AddTransient<ArticleViewSubscriber>();

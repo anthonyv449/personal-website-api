@@ -10,8 +10,12 @@ using ArticleEntity = MyIsolatedFuncApp.Data.Article;
 using System.Text.Json;
 using System.IO;
 using System.Collections.Generic;
-using Azure.AI.OpenAI;
 using Azure;
+using Azure.AI.OpenAI;
+using System.Collections.Generic;
+using OpenAI.Chat;
+
+
 
 namespace personal_website_api
 {
@@ -19,13 +23,16 @@ namespace personal_website_api
     {
         private readonly ILogger<ArticleFunctions> _logger;
         private readonly MyDbContext _db;
-        private readonly OpenAIClient _openAI;
+        private readonly AzureOpenAIClient  _openAI;
+        private readonly OpenAI.Chat.ChatClient _chatClient;
+        private const string OpenAIModel = "gpt-35-turbo-article-creation";
 
-        public ArticleFunctions(ILogger<ArticleFunctions> logger, MyDbContext db, OpenAIClient openAI)
+        public ArticleFunctions(ILogger<ArticleFunctions> logger, MyDbContext db, AzureOpenAIClient openAI)
         {
             _logger = logger;
             _db = db;
             _openAI = openAI;
+            _chatClient = openAI.GetChatClient(OpenAIModel);
         }
 
 
@@ -72,17 +79,14 @@ namespace personal_website_api
             }
             newArticle.OwnerId = user.Id;
 
-            var prompt = $"Fill in missing fields for an article with title: {newArticle.Title} and content: {newArticle.Content}. Return summary, SEO tags, SEO title, SEO description, SEO keywords, and estimated reading time.";
-            var completion = await _openAI.GetCompletionsAsync(
-                deploymentOrModelName: "gpt-4",
-                new CompletionsOptions
-                {
-                    Prompts = { prompt },
-                    MaxTokens = 500,
-                    Temperature = 0.7f
-                });
-
-            var aiResponse = completion.Value.Choices[0].Text;
+            var prompt = $"Fill in missing fields for an article with title: {newArticle.Title} and content: {newArticle.Content}. Return summary, SEO tags, SEO title, SEO description, SEO keywords.";
+           ChatCompletion completion = _chatClient.CompleteChat(
+            [
+                new SystemChatMessage("You are a helpful assistant that helps create and review articles."),
+                new UserChatMessage(prompt),
+            ]);
+            string aiResponse = completion.Content[0].Text;
+            _logger.LogInformation("AI response content: {0}", aiResponse);
             newArticle.Summary = ExtractValue(aiResponse, "Summary:");
             var tagCsv = ExtractValue(aiResponse, "SEO Tags:");
             if (!string.IsNullOrWhiteSpace(tagCsv))

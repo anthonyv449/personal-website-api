@@ -68,12 +68,28 @@ namespace personal_website_api.Auth
         public static async Task<UsersEntity?> GetUserFromSession(HttpRequestData req, MyDbContext db)
         {
             var sessionId = GetSessionId(req);
-            if (string.IsNullOrEmpty(sessionId))
-            {
-                return null;
-            }
+            var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
 
-            return await GetUserBySessionLogic.Execute(db, sessionId);
+            if (!string.IsNullOrEmpty(sessionId))
+            {
+                return await GetUserBySessionLogic.Execute(db, sessionId);
+
+            }
+            else
+            {
+                if (!int.TryParse(query["userId"], out var userId))
+                {
+                    return null;
+                }
+                var user = await db.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return null;
+                }else 
+                {
+                    return user;
+                }
+            }            
         }
 
     }
