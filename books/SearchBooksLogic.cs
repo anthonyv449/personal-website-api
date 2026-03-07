@@ -11,7 +11,7 @@ namespace personal_website_api.Books
     {
         private const string HardcoverEndpoint = "https://api.hardcover.app/v1/graphql";
 
-        public static async Task<List<BookResult>> Execute(HttpClient http, string? title, string? author)
+        public static async Task<List<BookResult>> Execute(HttpClient http, string? title, string? author, string token)
         {
             var whereClause = BuildWhereClause(title, author);
             var queryStr = $"query {{ books({whereClause} limit: 20) {{ title image {{ url }} rating contributions {{ author {{ name }} }} }} }}";
@@ -21,6 +21,7 @@ namespace personal_website_api.Books
             {
                 Content = new StringContent(payload, Encoding.UTF8, "application/json")
             };
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var response = await http.SendAsync(request);
             response.EnsureSuccessStatusCode();
