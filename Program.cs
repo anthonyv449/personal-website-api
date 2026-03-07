@@ -17,6 +17,7 @@ using Azure.Messaging.ServiceBus.Administration;
 using Azure.AI.OpenAI;
 using Azure;
 
+
 Console.WriteLine("🚀 Function App Host starting...");
 
 var host = Host.CreateDefaultBuilder(args)
@@ -63,12 +64,15 @@ var host = Host.CreateDefaultBuilder(args)
                           context.Configuration["Values:AZURE_OPENAI_KEY"];
             services.AddSingleton(new AzureOpenAIClient(new Uri(oaiEndpoint), new AzureKeyCredential(oaiKey)));
 
+            services.AddHttpClient("hardcover");
+
             services.AddTransient<ArticleViewPublisher>();
             services.AddTransient<ArticleViewSubscriber>();
 
             services.AddTransient<HttpExample>(); // or your function class using DbContext
             services.AddTransient<UsersFunctions>();
             services.AddTransient<ArticleFunctions>();
+            services.AddTransient<BooksFunctions>();
             services.AddTransient<AuthFunctions>();
             services.AddTransient<ITokenValidator, AzureAdTokenValidator>();
             Console.WriteLine("✅ ConfigureServices finished successfully");

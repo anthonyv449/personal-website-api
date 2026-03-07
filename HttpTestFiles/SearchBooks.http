@@ -1,0 +1,27 @@
+### Search by title only
+
+GET http://localhost:7071/api/books?title=dune
+Accept: application/json
+
+
+###
+
+### Search by author only
+
+GET http://localhost:7071/api/books?author=tolkien
+Accept: application/json
+
+
+###
+
+### Search by both title and author
+GET http://localhost:7071/api/books?title=hobbit&author=tolkien
+Accept: application/json
+
+###
+
+### Missing filters — expect 400
+GET http://localhost:7071/api/books
+Accept: application/json
+
+###

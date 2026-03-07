@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(DOTNET_ROOT=\"/c/Program Files/dotnet\" PATH=\"/c/Program Files/dotnet:$PATH\" DOTNET_ROLL_FORWARD=Major \"/c/Program Files/Microsoft/Azure Functions Core Tools/func.exe\" start)"
+    ]
+  }
+}

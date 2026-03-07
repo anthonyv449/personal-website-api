@@ -1,0 +1,5 @@
+{
+    "terminal.integrated.env.windows": {
+        "PATH": "C:\\Program Files\\Microsoft\\Azure Functions Core Tools;C:\\Program Files\\dotnet;${env:PATH}"
+    }
+}
