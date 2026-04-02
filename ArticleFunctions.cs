@@ -166,6 +166,9 @@ public async Task<HttpResponseData> CreateArticleInternal(
     if (newArticle == null)
         return req.CreateResponse(HttpStatusCode.BadRequest);
 
+    newArticle.OwnerId = 1;
+    newArticle.LastModifiedUserId = 1;
+
     var prompt = $"Fill in missing fields for an article with title: {newArticle.Title} and content: {newArticle.Content}. Return summary, SEO tags, SEO title, SEO description, SEO keywords.";
     ChatCompletion completion = _chatClient.CompleteChat(
         [
