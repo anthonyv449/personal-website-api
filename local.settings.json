@@ -10,7 +10,8 @@
     "ServiceBusConnection": "Endpoint=sb://your_service_bus_namespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=your_shared_access_key",
     "AZURE_OPENAI_ENDPOINT": "https://fakeresource.openai.azure.com/",
     "AZURE_OPENAI_KEY": "fakekey",
-    "HARDCOVER_API_KEY": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJIYXJkY292ZXIiLCJ2ZXJzaW9uIjoiOCIsImp0aSI6IjFkNTMxYTc3LWMwMTItNGI2My05OTJjLTRjZTYzNGFkODAxNyIsImFwcGxpY2F0aW9uSWQiOjIsInN1YiI6IjgxNDA3IiwiYXVkIjoiMSIsImlkIjoiODE0MDciLCJsb2dnZWRJbiI6dHJ1ZSwiaWF0IjoxNzcyODEyOTc4LCJleHAiOjE4MDQzNDg5NzgsImh0dHBzOi8vaGFzdXJhLmlvL2p3dC9jbGFpbXMiOnsieC1oYXN1cmEtYWxsb3dlZC1yb2xlcyI6WyJ1c2VyIl0sIngtaGFzdXJhLWRlZmF1bHQtcm9sZSI6InVzZXIiLCJ4LWhhc3VyYS1yb2xlIjoidXNlciIsIlgtaGFzdXJhLXVzZXItaWQiOiI4MTQwNyJ9LCJ1c2VyIjp7ImlkIjo4MTQwN319.AdIne36Tw20QJrMnfn2_QIuFn2AYQitTO16_dA8ttCs",
-    "DOTNET_ROLL_FORWARD": "Major"
+    "HARDCOVER_API_KEY": "Bearer" , 
+    "INTERNAL_API_KEY": "secret"
+
   }
 }

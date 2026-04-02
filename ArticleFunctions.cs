@@ -147,6 +147,46 @@ namespace personal_website_api
             return req.CreateResponse(success ? HttpStatusCode.NoContent : HttpStatusCode.NotFound);
         }
 
+        [Function("CreateArticleInternal")]
+public async Task<HttpResponseData> CreateArticleInternal(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "articles/internal")] HttpRequestData req)
+{
+    var secret = req.Headers.TryGetValues("X-Internal-Key", out var values)
+        ? values.FirstOrDefault()
+        : null;
+    var expectedSecret = Environment.GetEnvironmentVariable("INTERNAL_API_KEY");
+    if (string.IsNullOrEmpty(secret) || secret != expectedSecret)
+        return req.CreateResponse(HttpStatusCode.Unauthorized);
+
+    var bodyString = await new StreamReader(req.Body).ReadToEndAsync();
+    var newArticle = JsonSerializer.Deserialize<Article>(bodyString, new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    });
+    if (newArticle == null)
+        return req.CreateResponse(HttpStatusCode.BadRequest);
+
+    var prompt = $"Fill in missing fields for an article with title: {newArticle.Title} and content: {newArticle.Content}. Return summary, SEO tags, SEO title, SEO description, SEO keywords.";
+    ChatCompletion completion = _chatClient.CompleteChat(
+        [
+            new SystemChatMessage("You are a helpful assistant that helps create and review articles."),
+            new UserChatMessage(prompt),
+        ]);
+    string aiResponse = completion.Content[0].Text;
+    newArticle.Summary = ExtractValue(aiResponse, "Summary:");
+    var tagCsv = ExtractValue(aiResponse, "SEO Tags:");
+    if (!string.IsNullOrWhiteSpace(tagCsv))
+        newArticle.Tags = tagCsv.Split(',', StringSplitOptions.RemoveEmptyEntries);
+    newArticle.SeoTitle = ExtractValue(aiResponse, "SEO Title:");
+    newArticle.SeoDescription = ExtractValue(aiResponse, "SEO Description:");
+    newArticle.SeoKeywords = ExtractValue(aiResponse, "SEO Keywords:");
+
+    var created = await CreateArticleLogic.Execute(_db, newArticle);
+    var res = req.CreateResponse(HttpStatusCode.Created);
+    await res.WriteAsJsonAsync(created);
+    return res;
+}
+
         private static string ExtractValue(string text, string label)
         {
             var start = text.IndexOf(label, StringComparison.OrdinalIgnoreCase);
